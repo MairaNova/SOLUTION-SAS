@@ -1,0 +1,273 @@
+{% extends 'transporte/base.html' %}
+{% block contenido %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="p-5">
+            <div class="text-center">
+                <h1 class="h4 text-gray-900 mb-4">Ruta Asignada</h1>
+            </div>
+            {% if ruta %}
+                <form class="user" method="POST">
+                    {% csrf_token %}
+
+                    <div class="form-group row">                        
+                            <div class="col-lg-6">
+                                <label>
+                                    <span style="color: red">*</span>Conductor:
+                                </label>
+                                <input type="text" id="txtConductor" readonly name="txtConductor" class="form-control" value="{{ ruta.conductor }}">
+                            </div>                 
+                    
+                        <div class="col-lg-6">
+                            <label>
+                                <span style="color: red">*</span>Destino:
+                            </label>
+                            {{form.ciudad}}
+                        </div>
+                    </div>  
+                    <div class="form-group row">
+                        <div class="col-lg-6" id="id_km">
+                            <label>
+                                <span style="color: red">*</span>Kilómetros:
+                            </label>
+                            <input type="text" id="txtKilometros" class="form-control" placeholder="" value="{{ ruta.km }}">
+                        </div> 
+                        <div class="col-lg-6">
+                            <label>
+                                <span style="color: red">*</span>Vehículo:
+                            </label>
+                            <input type="text" id="txtVehiculo" readonly name="txtVehiculo" class="form-control" value="{{ ruta.placa }}">
+                        </div>                        
+                    </div>                   
+                    <table id="material-table" class="table">
+                        <thead>
+                            <tr>                            
+                                <th>Material</th>
+                                <th>Unidades</th>
+                                <th>Peso Material (Kg)</th>
+                                <th>Peso total  (Kg)</th>
+                                <th>Costo Total  ($)</th>
+                                <th style="display:none;">materialId</th>
+                                <th>Acción</th> 
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí se agregarán las filas dinámicamente -->
+                        </tbody>
+                    </table>
+                    <input type="hidden" id="datos-tabla" name="datos_tabla">
+                    </br>                    
+                    <div class="form-group row">
+                        <div class="col-lg-6">
+                            <label>
+                                <span style="color: red">*</span>Peso Total de la Ruta (Kg):
+                            </label>
+                            <input type="text" id="txtPesoTotal" name="txtPesoTotal" class="form-control" placeholder="">
+                        </div>
+                    </div>                    
+                    <input type="hidden" id="ruta-id" value="{{ rutaid }}" style="display: none;">
+                    </br>
+                    {% if alerta %}                        
+                        <div class="alert alert-success" role="alert" style="font-size: 15px; padding: 5px;">                                   
+                            {{ alerta }}                                   
+                        </div>                        
+                    {% endif %}                    
+                    {% if ruta.estado == 0 %}
+                        
+                        <div class="form-group row" >                                                   
+                            <div class="col-lg-12">  
+                                <div class="text-center">                     
+                                    <a href="{% url 'estadorutainiciada' %}" class="btn btn-success btn-icon-split">
+                                        <span class="icon text-white-50">
+                                        </span>
+                                        <span class="text"> Iniciar Ruta </span>
+                                    </a> 
+                                </div>
+                            </div>                      
+                        </div>                        
+                                  
+                    {% endif %}
+                    {% if ruta.estado == 1 %}
+                        
+                        <div class="form-group row" >                                                   
+                            <div class="col-lg-12">  
+                                <div class="text-center">                     
+                                    <a href="{% url 'estadorutaterminada' %}" class="btn btn-danger">
+                                        <span class="icon text-white-50">
+                                        </span>
+                                        <span class="text"> Ruta Terminada</span>
+                                    </a> 
+                                </div>
+                            </div>                      
+                        </div>                        
+                                  
+                    {% endif %}                  
+                    
+                </form>
+            {% else %}
+            {% if alerta %}                        
+                <div class="alert alert-primary" role="alert" style="font-size: 15px; padding: 5px;">                                   
+                    {{ alerta }}                                   
+                </div>                        
+        {% endif %}    
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+
+
+
+
+
+    $(document).ready(function() {
+        // Manejar el evento clic en el botón "Agregar Material"
+        $('#agregar-material-btn').click(function() {
+            // Obtener los valores de material y unidades
+            var materialId = $('#id_material').val(); // Obtener el ID del material seleccionado
+            var materialNombre = $('#id_material option:selected').text();
+            var unidades = $('#id_Unidades').val();
+            var km = parseFloat($('#txtKilometros').val());
+            // Realizar una solicitud AJAX para obtener el peso del material
+            $.ajax({
+                url: '/obtener-peso-material/', // Actualiza esta URL con la ruta correcta en tu aplicación Django
+                method: 'GET',
+                data: {'material_id': materialId},
+                success: function(response) {
+                    var pesoMaterial = parseFloat(response.peso); // Obtener el peso del material desde la respuesta                    
+                    // Obtener el cuerpo de la tabla
+                    var tbody = $('#material-table tbody');
+                    var preciototal = (800000 *pesoMaterial*unidades*km)/5
+                    var preciototalFormateado = preciototal.toLocaleString('es-ES');
+                    // Agregar una nueva fila a la tabla con los valores de material, unidades y peso
+                    tbody.append(`
+                        <tr>                            
+                            <td>${materialNombre}</td>
+                            <td>${unidades}</td>
+                            <td>${pesoMaterial}</td>
+                            <td>${unidades * pesoMaterial}</td> <!-- Calcula el peso total -->
+                            <td>${preciototalFormateado}</td> <!-- Calcula el Precio total -->
+                            <td style="display:none;">${materialId}</td>
+                            <td><button type="button" class="btn btn-danger btn-sm eliminar-material-btn">Eliminar</button></td>
+                        </tr>
+                    `);
+                    actualizarPesoTotal();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error al obtener el peso del material:", error);
+                }
+            });
+        });
+
+        obtenerYMostrarDatosRutaMaterial();
+
+    // Función para obtener y mostrar datos de RutaMaterial
+        function obtenerYMostrarDatosRutaMaterial() {
+            var rutaId = $('#ruta-id').val();
+            
+            $.ajax({
+                url: '/obtener-datos-ruta-material/', // Actualiza esta URL con la ruta correcta en tu aplicación Django
+                method: 'GET',
+                data: {'rutaId': rutaId},
+                success: function(response) {
+                    console.log(response)
+
+
+                    var tbody = $('#material-table tbody');
+                    response.forEach(function(item) {
+                        console.log(item.material)
+                        var unidades = item.Unidades
+                        var materialId = item.material_id
+                        var pesoMaterial = parseFloat(item.pesoMaterial); // Si tienes el pesoMaterial en los datos recibidos
+                        // Calcular unidades * pesoMaterial
+                        var pesoTotalMaterial = parseFloat(item.Unidades) * pesoMaterial;
+                        // Calcular preciototal
+                        var preciototal = (800000 * pesoTotalMaterial * parseFloat(item.km)) / 5;
+                        var preciototalFormateado = preciototal.toLocaleString('es-ES');
+
+                        // Agregar una nueva fila a la tabla con los datos de RutaMaterial
+                        tbody.append(`
+                            <tr>
+                                <td>${item.materialNombre}</td>
+                                <td>${unidades}</td>
+                                <td>${pesoMaterial}</td>
+                                <td>${pesoTotalMaterial}</td> <!-- Calcula el peso total -->
+                                <td>${preciototalFormateado}</td> <!-- Calcula el Precio total -->
+                                <td style="display:none;">${materialId}</td>
+                                <td><button type="button" class="btn btn-danger btn-sm eliminar-material-btn">Eliminar</button></td>                       
+                                
+                            </tr>
+                        `);
+                    });
+
+                    actualizarPesoTotal();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error al obtener los datos de RutaMaterial:", error);
+                }
+            });
+        }
+
+    
+        // Manejar el evento clic en el botón "Eliminar" en cada fila de la tabla
+        $(document).on('click', '.eliminar-material-btn', function() {
+            $(this).closest('tr').remove();
+            actualizarPesoTotal();
+        });
+
+        function actualizarPesoTotal() {
+            var pesoTotal = 0;
+            $('#material-table tbody tr').each(function() {
+                var pesoFila = parseFloat($(this).find('td:eq(3)').text());
+                pesoTotal += pesoFila;
+            });
+            // Actualizar el valor de la caja de texto "Peso Total de la Ruta"
+            $('#txtPesoTotal').val(pesoTotal);
+        }
+        
+    });
+    $(document).ready(function() {
+        // Manejar el evento cambio en el campo de selección de ciudades
+        $('#id_ciudad').change(function() {
+            var ciudadId = $(this).val(); // Obtener el ID de la ciudad seleccionada
+    
+            // Realizar una solicitud AJAX para obtener los kilómetros de la ciudad seleccionada
+            $.ajax({
+                url: '/obtener-km/', // Actualiza esta URL con la ruta correcta en tu aplicación Django
+                method: 'GET',
+                data: {'ciudad_id': ciudadId},                    
+                success: function(response) {
+                    var km = parseFloat(response.km); // Convertir el valor de kilómetros a decimal
+                    if (!isNaN(km)) {
+                        // Actualizar el atributo data-km del campo de kilómetros en el formulario HTML
+                        $('#txtKilometros').attr('value', km);
+                        // Actualizar el valor visual del campo de kilómetros en el formulario HTML
+                        $('#txtKilometros').val(km);
+                        $('form').append('<input type="hidden" name="km" value="' + km + '">');
+                    } else {
+                        console.error("El valor de kilómetros recibido no es válido.");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error al obtener los kilómetros de la ciudad:", error);
+                }
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        // Adjunta el script al evento submit del formulario
+        $('form').submit(function() {
+            var datosTabla = [];
+            var km = parseFloat($('#txtKilometros').val());
+
+            $('#material-table tbody tr').each(function() {
+                var materialId = $(this).find('td:eq(5)').text();
+                var unidades = $(this).find('td:eq(1)').text();
+                datosTabla.push({ 'materialId': materialId, 'unidades': unidades, 'km': km});
+            });
+            $('#datos-tabla').val(JSON.stringify(datosTabla));
+        });
+    });
+</script>
+{% endblock %} 

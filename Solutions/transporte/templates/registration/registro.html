@@ -1,0 +1,159 @@
+{% extends 'transporte/base.html' %}
+{% block contenido %}
+<div class="row">
+    <div class="col-lg-7">
+        <div class="p-5">
+            <div class="text-center">
+                <h1 class="h4 text-gray-900 mb-4">Registro de usuarios</h1>
+            </div>
+            <form class="user" method="POST">
+                {% csrf_token %}
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Nombre:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.first_name}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Apellido:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.last_name}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>E-mail:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.email}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Tipo Documento:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.tipodocumento}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Documento:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.documento}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            Telefono:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.telefono}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Rol:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.rol}}
+                    </div>
+                </div>
+                <div class="form-group row" id="campo_licencia">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Licencia:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.licencia}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Usuario:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.username}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>password1:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.password1}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>password2:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.password2}}
+                    </div>
+                </div>
+                <br>
+                <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+                <hr>
+                {% if alerta %}
+                    <div class="aalert alert-danger" role="alert" style="font-size: 15px; padding: 5px;">                                   
+                        {{ message}}                                   
+                    </div>
+                {% endif %}
+            </form>
+            <br>
+        </div>
+    </div>
+</div>
+<style>
+    .oculto {
+        display: none;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var rolSelect = document.querySelector('#id_rol');
+        var licenciaField = document.querySelector('#campo_licencia');
+
+        function toggleLicenciaField() {
+            if (rolSelect.value === '2') {
+                licenciaField.classList.remove('oculto');
+            } else {
+                licenciaField.classList.add('oculto');
+            }
+        }
+        // Llamar a la función una vez para manejar el estado inicial
+        toggleLicenciaField();
+
+        // Agregar un controlador de eventos para cambiar el estado cuando cambie la selección del rol
+        rolSelect.addEventListener('change', toggleLicenciaField);
+    });
+</script>
+
+{% endblock %}  

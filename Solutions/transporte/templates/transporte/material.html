@@ -1,0 +1,108 @@
+{% extends 'transporte/base.html' %}
+{% block contenido %}
+<div class="row">
+    <div class="col-lg-7">
+        <div class="p-5">
+            <div class="text-center">
+                <h1 class="h4 text-gray-900 mb-4">Registro de Material</h1>
+            </div>
+            <form class="user" method="POST">
+                {% csrf_token %}
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Nombre del Material:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.nombre}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Presentación:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.presentacion}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Peso por Unidad (Kg):
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.pesounidad}}
+                    </div>
+                </div> 
+                <button type="submit" class="btn btn-primary btn-block">Guardar</button>
+                <hr>
+                {% if alerta %}
+                    <div class="aalert alert-danger" role="alert" style="font-size: 15px; padding: 5px;">                                   
+                        {{ message}}                                   
+                    </div>                    
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row"> 
+    <div class="col-lg-12"> 
+        <div class="p-5">
+            {% if material %}
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Lista de Materiales</h6>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table  class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre Material</th>
+                                        <th>Presentación</th>
+                                        <th>Precio Por Unidad</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>  
+                                    {% for m in material %}                                      
+                                        <tr>
+                                            
+                                            <td>{{ m.nombre }}</td>
+                                            <td>{{ m.presentacion }}</td>    
+                                            <td>{{ m.pesounidad}} Kg</td> 
+                                            
+                                            <td>
+                                                {% if m.ruta == 0 %}
+                                                    <a href="{% url 'eliminarmaterial' m.id %}" class="btn btn-danger btn-circle btn-sm" title="Eliminar">
+                                                        <i class="fas fa-times"></i>
+                                                    </a>  
+                                                    <a href="{% url 'edicionmaterial' m.id %}" class="btn btn-info btn-circle btn-sm" title="Editar">
+                                                        <i class="fas fa-pencil-alt" ></i>
+                                                    </a> 
+                                                {% endif %}                                               
+                                            </td>                                   
+                                        </tr>
+                                    {% endfor %}
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>                            
+                </div>
+            {% else %}            
+                <div class="alert alert-warning" role="alert">
+                    No se encontraron Materiales agregados
+                </div>                    
+            {% endif %}
+        </div>
+    </div>     
+</div>
+
+{% endblock %}  

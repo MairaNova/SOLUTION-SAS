@@ -1,0 +1,139 @@
+{% extends 'transporte/base.html' %}
+{% block contenido %}
+<div class="row">
+    <div class="col-lg-7">
+        <div class="p-5">
+            <div class="text-center">
+                <h1 class="h4 text-gray-900 mb-4">Registro de Vehículos</h1>
+            </div>
+            <form class="user" method="POST">
+                {% csrf_token %}
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Placa:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.placa}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Marca:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.marca}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Modelo:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.modelo}}
+                    </div>
+                </div> 
+                <div class="form-group row">
+                    <div class="col-lg-3">
+                        <label>
+                            <span style="color: red">*</span>Año:
+                        </label>
+                    </div>
+                    <div class="col-lg-9">
+                        {{form.year}}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-5">
+                        <label>
+                            <span style="color: red">*</span>Fecha Vencimiento del Soat:
+                        </label>
+                    </div>
+                    <div class="col-lg-7">
+                        {{form.fechavencisoat}}
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-lg-5">                            
+                    </div>
+                    <div class="col-lg-7">
+                        <label>
+                            {% if vehiculo.soat == 'Vencido' %}
+                                <span style="color: red">{{vehiculo.soat}}</span> 
+                            {% else %}
+                                <span style="color: green">{{vehiculo.soat}}</span>
+                            {% endif %}
+                        </label>
+                    </div>
+                </div> 
+                
+                <div class="form-group row">
+                    <div class="col-lg-5">
+                        <label>
+                            <span style="color: red">*</span>Fecha Vencimiento de la Tecnomecánica:
+                        </label>
+                    </div>
+                    <div class="col-lg-7">
+                        {{form.fechavencitecno}}
+                    </div>
+                </div> 
+                <div class="form-group row">
+                    <div class="col-lg-5">                            
+                    </div>
+                    <div class="col-lg-7">
+                        <label>
+                            {% if vehiculo.tecno == 'Vencido' %}
+                                <span style="color: red">{{vehiculo.tecno}}</span> 
+                            {% else %}
+                                <span style="color: green">{{vehiculo.tecno}}</span>
+                            {% endif %}                            
+                        </label>
+                    </div>
+                </div> 
+               
+                {% if editar == 1 %}                          
+                    <button type="submit" class="btn btn-primary btn-block">Guardar</button>
+                {% endif %}
+                <hr>
+                {% if alerta %}
+                    
+                    <div class="aalert alert-danger" role="alert" style="font-size: 15px; padding: 5px;">                                   
+                        {{ message}}                                   
+                    </div>
+                
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $("#id_fechavencisoat").datepicker({
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: false,
+        autoclose: true,
+        language: 'es',
+        format: 'yyyy-mm-dd',
+        // endDate: new Date(),
+        todayHighlight: true
+    });
+    $("#id_fechavencitecno").datepicker({
+        todayBtn: "linked",
+        keyboardNavigation: false,
+        forceParse: false,
+        calendarWeeks: false,
+        autoclose: true,
+        language: 'es',
+        format: 'yyyy-mm-dd',
+        // endDate: new Date(),
+        todayHighlight: true
+    });
+</script>
+{% endblock %} 

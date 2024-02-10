@@ -1,0 +1,50 @@
+{% extends 'transporte/base.html' %}
+{% block contenido %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="p-5">
+            <div class="text-center">
+                <h1 class="h4 text-gray-900 mb-4">Reporte Rutas Activas</h1>
+            </div>
+            <div class="text-center">                     
+                <a href="{% url 'reporterutas' %}" class="btn btn-danger">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-download"></i>
+                    </span>
+                    <span class="text">Descargar</span>
+                </a> 
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="p-5">
+            <div class="text-center">
+                <h1 class="h4 text-gray-900 mb-4">Reporte de Material a Transportar</h1>
+            </div>
+            <div class="text-center">                     
+                <a href="{% url 'reportematerial' %}" class="btn btn-success btn-icon-split">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-download"></i>
+                    </span>
+                    <span class="text">Descargar</span>
+                </a> 
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="p-5">
+            <div class="text-center">
+                <h1 class="h4 text-gray-900 mb-4">Reporte de Vehículos</h1>
+            </div>
+            <div class="text-center">                     
+                <a href="{% url 'reportevehiculos' %}" class="btn btn-primary">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-download"></i>
+                    </span>
+                    <span class="text">Descargar</span>
+                </a> 
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
