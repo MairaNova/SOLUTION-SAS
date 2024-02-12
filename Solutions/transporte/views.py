@@ -1,3 +1,4 @@
+from django.db.models import Case, When, Value, CharField
 from django.shortcuts import render,redirect
 from django.views.generic import DetailView, TemplateView, RedirectView, View
 from django.shortcuts import render, get_object_or_404
@@ -14,7 +15,7 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.contrib.staticfiles import finders
-from .models import Material, Rutamaterial, Vehiculo, Ruta, Ciudad, CustomUser
+from .models import Material, Rutamaterial, Vehiculo, Ruta, Ciudad, CustomUser, Rol
 from datetime import date
 from django.http import JsonResponse
 from decimal import Decimal, ROUND_HALF_UP
@@ -34,7 +35,13 @@ def inicio(request):
 
 @login_required(login_url='login')
 def registro(request):
-    data = {'form': CustomUserCreationForm}
+    usuario = CustomUser.objects.exclude(username='admin')
+    for u in usuario:
+        rol = Rol.objects.filter(pk=u.rol.id).first()
+        u.rolnombre = rol.nombre
+
+    data = {'form': CustomUserCreationForm,
+            'usuario': usuario,}
 
     if request.method == 'POST':
         formulario = CustomUserCreationForm(request.POST)
@@ -44,6 +51,7 @@ def registro(request):
                 licencia_value = formulario.cleaned_data['licencia']
                 if len(licencia_value) > 0:
                     formulario.save()
+                    messages.success(request, 'El usuario se registró correctamente')
                     return redirect('inicio')
                 else:
                     data['alerta'] = formulario.errors
@@ -74,7 +82,9 @@ def AgregarMaterial(request):
         formulario = MaterialForm(request.POST)
         if formulario.is_valid():            
                 formulario.save()
+                messages.success(request, 'Se agregó el material correctamente')
                 return redirect('material')
+                
         else:
             data['alerta'] = formulario.errors
             print(formulario.errors)
@@ -99,6 +109,7 @@ def ediciontipoconcepto(request, id):
         formulario = MaterialForm(request.POST, instance=material)
         if formulario.is_valid():
             formulario.save()
+            messages.success(request, 'Se editó el material correctamente')
             return redirect('material')        
     else: 
         data = {'form': MaterialForm(instance=material)} 
@@ -132,6 +143,7 @@ def AgregarVehiculo(request):
         formulario = VehiculoForm(request.POST)
         if formulario.is_valid():            
                 formulario.save()
+                messages.success(request, 'Se agregó el Vehículo correctamente')
                 return redirect('vehiculo')
         else:
             data['alerta'] = formulario.errors
@@ -159,6 +171,7 @@ def edicionvehiculo(request, id):
         formulario = VehiculoForm(request.POST, instance=vehiculo)
         if formulario.is_valid():
             formulario.save()
+            messages.success(request, 'Se editó el Vehículo correctamente')
             return redirect('vehiculo')        
         else: 
             data = {'form': VehiculoForm(instance=vehiculo),
@@ -190,7 +203,13 @@ def vervehiculo(request, id):
 
 @login_required(login_url='login')
 def ruta(request):
-    rutas = Ruta.objects.all()
+    orden_estado = Case(
+        When(estado=0, then=Value('A')),
+        When(estado=1, then=Value('B')),
+        default=Value('C'),
+        output_field=CharField(),
+        )
+    rutas = Ruta.objects.all().order_by(orden_estado)
     for r in rutas:
         if r.estado == 0:
             r.estadonombre = 'Pendiente'
@@ -256,6 +275,7 @@ def agregarruta(request):
 
                     ruta.valortotal = preciototal
                     ruta.save()
+                    messages.success(request, 'Se agregó la Ruta correctamente')
                     # Redireccionar a algún lugar después de guardar
                     return redirect('ruta')
                 else:
@@ -378,8 +398,9 @@ def edicionruta(request, id):
                         Rutamaterial.objects.create(ruta=ruta, material=material, Unidades=unidad)                        
                         preciototal += precio
 
-                    ruta.valortotal = preciototal
+                    ruta.valortotal = preciototal                    
                     ruta.save()
+                    messages.success(request, 'Se editó la Ruta correctamente')
 
                     # Redireccionar a algún lugar después de guardar
                     return redirect('ruta')
@@ -397,6 +418,14 @@ def edicionruta(request, id):
         
 @login_required(login_url='login')
 def eliminarruta(request, id):
+    ruta = Ruta.objects.filter(pk=id).first()
+    vehiculo = Vehiculo.objects.filter(pk=ruta.vehiculo.id).first()
+    vehiculo.SwAtive = 1
+    vehiculo.save()
+    usuario = CustomUser.objects.filter(pk=ruta.usuario.id).first()
+    usuario.SwAtive = 1
+    usuario.save()
+
     Rutamaterial.objects.filter(ruta=id).delete()
     ruta = get_object_or_404(Ruta, id=id)
     ruta.delete()
@@ -434,6 +463,7 @@ def estadorutainiciada(request):
     if ruta:
         ruta.estado = 1
         ruta.save()
+        messages.success(request, 'Has iniciado tu ruta')
 
     return redirect('rutaconductor')
 
@@ -449,7 +479,7 @@ def estadorutaterminada(request):
         usuario = CustomUser.objects.filter(pk=ruta.usuario.id).first()
         usuario.SwAtive = 1
         usuario.save()
-
+        messages.success(request, 'Has Terminado tu ruta')
 
     return redirect('rutaconductor')
 
@@ -472,18 +502,18 @@ def reporterutas(request):
                 if not resultado:
                     d.materiales = d.materiales + r.material.nombre + ' - ' 
                 
-        xlsx = XlsGenerator(str(request.user), ['Logs',], 'NAME_APP')
+        xlsx = XlsGenerator(str(request.user), ['Rutas',], ' SOLUTIONS S.A ')
         fields = ['Vehículo_Placa', 'Conductor', 'Materiales']
         body = [{'Vehículo_Placa': d.vehiculo.placa, 
                  'Conductor': d.usuario.first_name + ' ' + d.usuario.last_name,
                  'Materiales': d.materiales, } for d in data]
-        title = 'Reporte de Registros (Logs)'
+        title = 'Reporte de rutas activas'
 
         work_book = xlsx.generate_table_simple(fields=fields, body=body,
                                                 title=title, header=True,
                                                 footer=False)
         if work_book and work_book['code'] == 200:
-            filename = 'reporte_logs_calidad.xlsx'
+            filename = 'reporte_rutas_activas.xlsx'
             response = HttpResponse(content_type="application/ms-excel")
             contenido = "attachment; filename={0}".format(filename)
             response["Content-Disposition"] = contenido
@@ -495,10 +525,71 @@ def reporterutas(request):
 @login_required(login_url='login')
 def reportematerial(request):
 
-    return redirect('reportes')
+        data = Rutamaterial.objects.select_related('ruta','material').all()
+        for d in data:
+                ciudad = get_object_or_404(Ciudad, id=d.ruta.ciudad.id)
+                if ciudad is not None:
+                    d.ciudad = ciudad.nombre
+                costo = (800000 * d.Unidades * d.material.pesounidad * d.ruta.km)/5
+                costo = costo.quantize(Decimal('0.00'), rounding=ROUND_HALF_UP)
+                d.costo = costo
+
+
+                
+        xlsx = XlsGenerator(str(request.user), ['Materiales',], ' SOLUTIONS S.A ')
+        fields = ['Id_Ruta', 'Material', 'Peso_Unidad_(kg)', 'Cantidad', 'Costo_Transporte', 'Destino']
+
+        body = [{'Id_Ruta': d.ruta.pk, 
+                 'Material': d.material.nombre,
+                 'Peso_Unidad_(kg)': d.material.pesounidad,
+                 'Cantidad': d.Unidades, 
+                 'Costo_Transporte': d.costo,
+                 'Destino': d.ciudad,} for d in data]
+        title = 'Reporte de Materiales'
+
+        work_book = xlsx.generate_table_simple(fields=fields, body=body,
+                                                title=title, header=True,
+                                                footer=False)
+        if work_book and work_book['code'] == 200:
+            filename = 'reporte_materiales_rutas.xlsx'
+            response = HttpResponse(content_type="application/ms-excel")
+            contenido = "attachment; filename={0}".format(filename)
+            response["Content-Disposition"] = contenido
+            work_book['data'].save(response)
+            return response
+        messages.warning(request, 'No se puede generar el informe')
+        return render(request,'transporte/reportes.html')  
 
 @login_required(login_url='login')
 def reportevehiculos(request):
+        orden_estado = Case(
+        When(fechavencisoat__lt=date.today(), then=Value('A')),
+        When(fechavencitecno__lt=date.today(), then=Value('B')),
+        default=Value('C'),
+        output_field=CharField(),
+        )
+        data = Vehiculo.objects.all().order_by(orden_estado)
+               
+        xlsx = XlsGenerator(str(request.user), ['Vehículos',], ' SOLUTIONS S.A ')
+        fields = ['Placa', 'Marca', 'Modelo', 'fecha_vencimiento_soat', 'fecha_vencimiento_tecnomecanica']
 
-    return redirect('reportes')    
+        body = [{'Placa': d.placa, 
+                 'Marca': d.marca,
+                 'Modelo': d.modelo,
+                 'fecha_vencimiento_soat': d.fechavencisoat, 
+                 'fecha_vencimiento_tecnomecanica': d.fechavencitecno,} for d in data]
+        title = 'Reporte de Vehículos'
+
+        work_book = xlsx.generate_table_simple(fields=fields, body=body,
+                                                title=title, header=True,
+                                                footer=False)
+        if work_book and work_book['code'] == 200:
+            filename = 'reporte_vehiculos.xlsx'
+            response = HttpResponse(content_type="application/ms-excel")
+            contenido = "attachment; filename={0}".format(filename)
+            response["Content-Disposition"] = contenido
+            work_book['data'].save(response)
+            return response
+        messages.warning(request, 'No se puede generar el informe')
+        return render(request,'transporte/reportes.html')    
 

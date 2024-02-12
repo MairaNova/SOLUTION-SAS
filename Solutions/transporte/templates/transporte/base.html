@@ -51,41 +51,55 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
+            
             <li class="nav-item active">
                 <a class="nav-link" href="{% url 'inicio' %}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Inicio</span></a>
             </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="{% url 'registro' %}">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Registro</span></a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="{% url 'material' %}">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Material</span></a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="{% url 'vehiculo' %}">
-                    <i class="fas fa-fw fa-cog"></i>
-                    <span>Vehículos</span></a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="{% url 'ruta' %}">
-                    <i class="fas fa-truck"></i>
-                    <span>Rutas</span></a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="{% url 'rutaconductor' %}">
-                    <i class="fas fa-truck"></i>
-                    <span>Ruta Asignada</span></a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="{% url 'reportes' %}">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Reportes</span></a>
-            </li>
+
+            {% if user.rol.id != 2 %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'registro' %}">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Registro</span></a>
+                </li>
+            {% endif %} 
+            {% if user.rol.id  == 1 %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'material' %}">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Material</span></a>
+                </li>
+            {% endif %} 
+            {% if user.rol.id  == 1 %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'vehiculo' %}">
+                        <i class="fas fa-fw fa-cog"></i>
+                        <span>Vehículos</span></a>
+                </li>
+            {% endif %} 
+            {% if user.rol.id  == 1 %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'ruta' %}">
+                        <i class="fas fa-truck"></i>
+                        <span>Asignación Rutas</span></a>
+                </li>
+            {% endif %} 
+            {% if user.rol.id  == 2 %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'rutaconductor' %}">
+                        <i class="fas fa-truck"></i>
+                        <span>Ruta Asignada</span></a>
+                </li>
+            {% endif %} 
+            {% if user.rol.id  == 1 %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'reportes' %}">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Reportes</span></a>
+                </li>
+            {% endif %} 
             <!-- Nav Item - Charts -->                  
 
             
@@ -114,20 +128,7 @@
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
-
-                    <!-- Topbar Search -->
-                    <form
-                        class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                        <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                                aria-label="Search" aria-describedby="basic-addon2">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                    
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">

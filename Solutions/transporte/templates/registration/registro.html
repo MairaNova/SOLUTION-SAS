@@ -123,14 +123,59 @@
                 <hr>
                 {% if alerta %}
                     <div class="aalert alert-danger" role="alert" style="font-size: 15px; padding: 5px;">                                   
-                        {{ message}}                                   
+                        {{ alerta}}                                   
                     </div>
                 {% endif %}
-            </form>
-            <br>
+            </form>            
         </div>
     </div>
 </div>
+<div class="row"> 
+    <div class="col-lg-12"> 
+        <div class="p-5">
+            {% if usuario %}
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Lista de Vehívulos</h6>                        
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table  class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombres</th>
+                                        <th>Apellidos</th>
+                                        <th>Documento</th>
+                                        <th>Rol</th>
+                                    </tr>
+                                </thead>
+                                <tbody>  
+                                    {% for u in usuario %}                                      
+                                        <tr>
+                                            <td>{{ u.first_name }}</td>
+                                            <td>{{ u.last_name }}</td>
+                                            <td>{{ u.documento }}</td>  
+                                            <td>{{ u.rolnombre }}</td>                                                                            
+                                        </tr>
+                                    {% endfor %}
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>                            
+                </div>
+            {% else %}            
+                <div class="alert alert-warning" role="alert">
+                    No se encontraron Usuarios agregados
+                </div>                    
+            {% endif %}
+        </div>
+    </div>     
+</div>
+
+
 <style>
     .oculto {
         display: none;

@@ -7,7 +7,13 @@
         <div class="text-center">        
             <b><h1>Bienvenido</h1></b>
             </br>
-            <p>la primera parte de configuración para la pruebas UNIVERSIDAD EL BOSQUE está lista</p>
+            {% if user.rol.id  == 1 %}
+            <p>Bienvenido, en el siguiente Aplicativo Web pordrá crear usuarios con sus respectivos roles, agregar Vehículos, Materilaes y Crea las diferentes de rutas, adicionalmente podrá descargar reportes con la información suministrada</p>
+            {% endif %} 
+            {% if user.rol.id  == 2 %}
+            <p>Bienvenido, en el siguiente Aplicativo Web visualizar la ruta que tiene asignada, adicionalmente indicar si ya inició con la ruta o la terminó</p>
+            {% endif %} 
+            
         </div>
     </div> 
 </div> 

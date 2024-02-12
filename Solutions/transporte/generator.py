@@ -102,7 +102,7 @@ class XlsGenerator:
                              vertical=fields_alignment_v)
         for field in fields:
             column = get_column_letter(cell)
-            width = len(str(field)) * 4
+            width = len(str(field)) * 3
             self.current_sheet.column_dimensions[column].width = width
             cell += 1
             self.current_sheet[f'{column}{self.__row}'] = field.upper()

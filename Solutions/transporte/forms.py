@@ -27,13 +27,14 @@ class CustomUserCreationForm(UserCreationForm):
             field = self.fields[field_name]
             field.widget.attrs['class'] = 'form-control'
 
-        self.fields['username'].widget.attrs['placeholder'] = 'Nombre de usuario'
+        
         self.fields['first_name'].widget.attrs['placeholder'] = 'Nombre'
         self.fields['last_name'].widget.attrs['placeholder'] = 'Apellido'
         self.fields['email'].widget.attrs['placeholder'] = 'E-mail'
         self.fields['documento'].widget.attrs['placeholder'] = 'documento'
         self.fields['telefono'].widget.attrs['placeholder'] = 'telefono'
         self.fields['licencia'].widget.attrs['placeholder'] = 'licencia'
+        self.fields['username'].widget.attrs['placeholder'] = 'Nombre de usuario'
     
 class MaterialForm(forms.ModelForm):
     nombre = forms.CharField(max_length=255, required=True)
@@ -86,12 +87,12 @@ class VehiculoForm(forms.ModelForm):
 
 class RutaForm(forms.ModelForm):
     usuario = forms.ModelChoiceField(queryset=CustomUser.objects.filter(
-        Q(rol=2) & (Q(ruta__isnull=True) | (Q(SwAtive=1)))
+        Q(rol=2) & (Q(SwAtive=1))
     ), required=True)
     ciudad = forms.ModelChoiceField(queryset=Ciudad.objects.all(), required=True)
     km = forms.DecimalField(decimal_places=2, max_digits=20, required=True)   
     vehiculo = forms.ModelChoiceField(queryset=Vehiculo.objects.filter(
-        (Q(ruta__isnull=True) | (Q(SwAtive=1))) &
+        (Q(SwAtive=1)) &
         Q(fechavencisoat__gt=date.today()) &
         Q(fechavencitecno__gt=date.today())
     ), required=True) 
@@ -110,8 +111,8 @@ class RutaForm(forms.ModelForm):
         self.fields['km'].widget.attrs['placeholder'] = 'Km'  
 
 class RutaMaterialForm(forms.ModelForm):
-    material = forms.ModelChoiceField(queryset=Material.objects.all(), required=True)
-    Unidades = forms.IntegerField(validators=[MaxValueValidator(limit_value=1)], required=True) 
+    material = forms.ModelChoiceField(queryset=Material.objects.all(), required=False)
+    Unidades = forms.IntegerField(required=False) 
 
     class Meta:
         model = Rutamaterial
